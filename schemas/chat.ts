@@ -1,5 +1,5 @@
-import { z } from "zod";
+import * as z from "zod";
 
-export const schema = z.object({
+export const chatSchema = z.object({
   message: z.string(),
 });

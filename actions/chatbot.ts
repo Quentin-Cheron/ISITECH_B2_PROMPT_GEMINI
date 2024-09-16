@@ -1,8 +1,23 @@
-import { actionClient } from "@/lib/safe-action";
-import { schema } from "@/schemas/chat";
+"use server";
+
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { actionClient, ActionError } from "@/lib/safe-action";
+import { chatSchema } from "@/schemas/chat";
 
 export const addMessage = actionClient
-  .schema(schema)
+  .schema(chatSchema)
   .action(async ({ parsedInput }) => {
-    console.log(parsedInput);
+    const { message } = parsedInput;
+
+    if (!message) {
+      throw new ActionError("Le message est requis");
+    }
+
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY as string);
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const result = await model.generateContent(message);
+
+    return { message: result.response.text() }; // Assurez-vous de renvoyer le texte généré
   });

@@ -1,38 +1,54 @@
-const stats = [
-  { id: 1, name: "Créateurs qui nous soutiennent", value: "8,000+" },
-  { id: 2, name: "Croissance au cours de l'année", value: "23%" },
-  { id: 3, name: "Bonne réponses", value: "99.9%" },
-  { id: 4, name: "Gain au cours de l'année", value: "$1M" },
-];
+"use client";
 
-export default function chatWindow() {
+import { Message } from "@/types";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+export default function ChatWindow({ data }: { data: Message[] }) {
   return (
     <div className="bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl lg:max-w-none">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Les créateurs du monde entier nous font confiance
-            </h2>
-            <p className="mt-4 text-lg leading-8 text-gray-600">
-              Soyez parmit les premiers à utiliser Gemini Prompt, un outil de
-              génération de prompts pour les créateurs de contenu.
-            </p>
+        {data.length === 0 ? (
+          <div className="mx-auto max-w-2xl lg:max-w-none">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                Les créateurs du monde entier nous font confiance
+              </h2>
+              <p className="mt-4 text-lg leading-8 text-gray-600">
+                Soyez parmi les premiers à utiliser Gemini Prompt, un outil de
+                génération de prompts pour les créateurs de contenu.
+              </p>
+            </div>
           </div>
-          <dl className="mt-16 grid grid-cols-1 gap-0.5 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => (
-              <div key={stat.id} className="flex flex-col bg-gray-400/5 p-8">
-                <dt className="text-sm font-semibold leading-6 text-gray-600">
-                  {stat.name}
-                </dt>
-                <dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">
-                  {stat.value}
-                </dd>
+        ) : (
+          <div className="space-y-4">
+            {data.map((message, index) => (
+              <div key={index} className="space-y-2">
+                {/* Message envoyé */}
+                <div className="flex justify-end">
+                  <div className="bg-blue-500 text-white rounded-lg px-4 py-2 max-w-sm break-words">
+                    <p>{message.sendMessage}</p>
+                    <span className="block text-sm text-gray-300 mt-1">
+                      {new Date(message.createdAt).toLocaleTimeString()}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Réponse de Gemini */}
+                <div className="flex justify-start">
+                  <div className="bg-gray-200 text-gray-900 rounded-lg px-4 py-2 max-w-sm break-words">
+                    <p>{message.getMessage}</p>
+                    <span className="block text-sm text-gray-500 mt-1">
+                      {new Date(message.createdAt).toLocaleTimeString()}
+                    </span>
+                  </div>
+                </div>
               </div>
             ))}
-          </dl>
-        </div>
+          </div>
+        )}
       </div>
+      <ToastContainer />
     </div>
   );
 }
