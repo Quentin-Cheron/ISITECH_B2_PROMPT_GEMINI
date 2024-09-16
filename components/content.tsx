@@ -44,7 +44,7 @@ const teams = [
   { id: 3, name: "Workcation", href: "#", initial: "W", current: false },
 ];
 
-function classNames(...classes) {
+function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
@@ -300,7 +300,7 @@ export default function Content({ children }: childrenProps) {
           </a>
         </div>
 
-        <main className="py-10 lg:pl-72">
+        <main className="lg:pl-72">
           <div className="px-4 sm:px-6 lg:px-8">{children}</div>
         </main>
       </div>

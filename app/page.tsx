@@ -1,13 +1,11 @@
-import { Input } from "@nextui-org/input";
-import { Button, ButtonGroup } from "@nextui-org/button";
+import ChatInput from "@/components/chat/chat-input";
+import ChatWindow from "@/components/chat/chat-window";
 
 export default function Home() {
   return (
-    <div>
-      <div className="flex gap-5">
-        <Input type="text" name="message" placeholder="Message Gemini..." />
-        <Button color="primary">Button</Button>
-      </div>
+    <div className="grid grid-rows-[1fr_max-content] min-h-screen">
+      <ChatWindow />
+      <ChatInput />
     </div>
   );
 }
