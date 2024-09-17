@@ -9,6 +9,8 @@ export const addMessage = actionClient
   .action(async ({ parsedInput }) => {
     const { message } = parsedInput;
 
+    console.log(message);
+
     if (!message) {
       throw new ActionError("Le message est requis");
     }
@@ -19,5 +21,5 @@ export const addMessage = actionClient
 
     const result = await model.generateContent(message);
 
-    return { message: result.response.text() }; // Assurez-vous de renvoyer le texte généré
+    return { message: result.response.text() };
   });

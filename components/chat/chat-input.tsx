@@ -19,7 +19,7 @@ import { addMessage } from "@/actions/chatbot";
 // SCHEMAS
 import { chatSchema } from "@/schemas/chat";
 import { notifySuccess } from "@/lib/notify";
-import { allMessages, Message } from "@/types";
+import { allMessages } from "@/types";
 
 // ChatInput component
 
@@ -38,6 +38,8 @@ export default function ChatInput({
 
   const onSubmit = async (data: { message: string }) => {
     const res = await addMessage({ message: data.message });
+
+    console.log(res);
 
     if (res?.data?.message) {
       setError("");

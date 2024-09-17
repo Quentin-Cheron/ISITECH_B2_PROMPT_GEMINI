@@ -13,6 +13,7 @@ export default function HeaderLayout() {
     { name: "Chat", href: "/chat" },
     { name: "About us", href: "/about" },
     { name: "Contact", href: "/contact" },
+    { name: "Profile", href: "/settings" },
   ];
 
   return (

@@ -7,6 +7,7 @@ import {
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
 import { CheckIcon } from "@heroicons/react/20/solid";
+import HeaderLayout from "@/components/layout/header-layout";
 
 const features = [
   {
@@ -123,6 +124,7 @@ export default function Home() {
   return (
     <div className="bg-white">
       {/* Header */}
+      <HeaderLayout />
 
       <main className="isolate">
         {/* Hero section */}

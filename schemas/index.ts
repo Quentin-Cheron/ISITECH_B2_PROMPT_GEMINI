@@ -72,7 +72,6 @@ export const NewPasswordSchema = z
   })
   .refine(
     (data) => {
-      console.log(data);
       if (data.password && !data.newPassword) {
         return false;
       }

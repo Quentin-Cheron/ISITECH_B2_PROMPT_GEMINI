@@ -28,7 +28,9 @@ import {
 import { Avatar } from "@nextui-org/avatar";
 
 import { User } from "@nextui-org/user";
-import { ThemeSwitch } from "./theme-switch";
+import { currentUser } from "@/lib/auth";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { logout } from "@/actions/logout";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: HomeIcon, current: true },
@@ -54,6 +56,8 @@ type childrenProps = {
 
 export default function Content({ children }: childrenProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const user = useCurrentUser();
 
   return (
     <>
@@ -246,27 +250,33 @@ export default function Content({ children }: childrenProps) {
                   <div className="flex items-center gap-4">
                     <Dropdown placement="bottom-start">
                       <DropdownTrigger>
-                        <User
-                          as="button"
-                          avatarProps={{
-                            isBordered: true,
-                            src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-                          }}
-                          className="transition-transform"
-                          description="@tonyreichert"
-                          name="Tony Reichert"
-                        />
+                        {user && (
+                          <User
+                            as="button"
+                            avatarProps={{
+                              isBordered: true,
+                              src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+                            }}
+                            className="transition-transform"
+                            description={`@${user.name}`}
+                            name={user.name}
+                          />
+                        )}
                       </DropdownTrigger>
                       <DropdownMenu aria-label="User Actions" variant="flat">
                         <DropdownItem key="profile" className="h-14 gap-2">
                           <p className="font-bold">Signed in as</p>
-                          <p className="font-bold">@tonyreichert</p>
+                          <p className="font-bold">@{user.name}</p>
                         </DropdownItem>
                         <DropdownItem key="settings">My Settings</DropdownItem>
                         <DropdownItem key="help_and_feedback">
                           Help & Feedback
                         </DropdownItem>
-                        <DropdownItem key="logout" color="danger">
+                        <DropdownItem
+                          key="logout"
+                          color="danger"
+                          onClick={() => logout()}
+                        >
                           Log Out
                         </DropdownItem>
                       </DropdownMenu>

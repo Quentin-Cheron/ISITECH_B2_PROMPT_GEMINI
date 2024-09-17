@@ -73,7 +73,6 @@ export const {
     },
 
     async jwt({ token }) {
-      console.log("token", token);
       if (!token.sub) return token;
 
       const existingUser = await getUserById(token.sub);
