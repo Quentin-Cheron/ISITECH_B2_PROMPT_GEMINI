@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -9,12 +9,8 @@ import {
 } from "@headlessui/react";
 import {
   Bars3Icon,
-  CalendarIcon,
-  ChartPieIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
   HomeIcon,
-  UsersIcon,
+  PlusCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
@@ -25,25 +21,16 @@ import {
   DropdownItem,
 } from "@nextui-org/dropdown";
 
-import { Avatar } from "@nextui-org/avatar";
-
 import { User } from "@nextui-org/user";
-import { currentUser } from "@/lib/auth";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { logout } from "@/actions/logout";
+import { Button } from "@nextui-org/button";
+import { addChannelAction, getChannelAction } from "@/actions/channel";
+import Link from "next/link";
 
-const navigation = [
-  { name: "Dashboard", href: "/", icon: HomeIcon, current: true },
-  { name: "Team", href: "/", icon: UsersIcon, current: false },
-  { name: "Projects", href: "/", icon: FolderIcon, current: false },
-  { name: "Calendar", href: "/", icon: CalendarIcon, current: false },
-  { name: "Documents", href: "/", icon: DocumentDuplicateIcon, current: false },
-  { name: "Reports", href: "/", icon: ChartPieIcon, current: false },
-];
+const navigation = [{ name: "Home", href: "/", icon: HomeIcon, current: true }];
 const teams = [
   { id: 1, name: "Heroicons", href: "#", initial: "H", current: false },
-  { id: 2, name: "Tailwind Labs", href: "#", initial: "T", current: false },
-  { id: 3, name: "Workcation", href: "#", initial: "W", current: false },
 ];
 
 function classNames(...classes: string[]) {
@@ -56,8 +43,37 @@ type childrenProps = {
 
 export default function Content({ children }: childrenProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>("");
+  const [channels, setChannels] = useState<any[]>([]);
 
   const user = useCurrentUser();
+
+  const addChannel = async () => {
+    startTransition(async () => {
+      const res = await addChannelAction();
+
+      console.log(res);
+
+      if (res.data) {
+        setChannels((prev: any[] = []) => [...(prev || []), res.data.channel]);
+      }
+
+      if (res.serverError) {
+        setError(res.serverError);
+      }
+      if (res.validationErrors) {
+        setError("Les champs sont invalides");
+      }
+    });
+  };
+
+  useEffect(() => {
+    (async () => {
+      const res = await getChannelAction();
+      setChannels(res?.data?.channels);
+    })();
+  }, [user]);
 
   return (
     <>
@@ -133,8 +149,9 @@ export default function Content({ children }: childrenProps) {
                     </li>
                     <li>
                       <div className="text-xs font-semibold leading-6 text-gray-400">
-                        Your teams
+                        Toute les conversations
                       </div>
+
                       <ul className="-mx-2 mt-2 space-y-1">
                         {teams.map((team) => (
                           <li key={team.name}>
@@ -213,32 +230,27 @@ export default function Content({ children }: childrenProps) {
                 </li>
                 <li>
                   <div className="text-xs font-semibold leading-6 text-gray-400">
-                    Your teams
+                    Toute les conversations
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    color="primary"
+                    onClick={addChannel}
+                    isLoading={isPending}
+                  >
+                    {!isPending && <PlusCircleIcon className="mr-2 h-5 w-5" />}
+                    Ajouter une conversation
+                  </Button>
                   <ul className="-mx-2 mt-2 space-y-1">
-                    {teams.map((team) => (
-                      <li key={team.name}>
-                        <a
-                          href={team.href}
-                          className={classNames(
-                            team.current
-                              ? "bg-gray-50 text-indigo-600"
-                              : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
-                            "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
-                          )}
+                    {channels?.map((channel) => (
+                      <li key={channel?.id}>
+                        <Link
+                          href={`/c/${channel?.id}`}
+                          className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 hover:bg-gray-50 hover:text-indigo-600"
                         >
-                          <span
-                            className={classNames(
-                              team.current
-                                ? "border-indigo-600 text-indigo-600"
-                                : "border-gray-200 text-gray-400 group-hover:border-indigo-600 group-hover:text-indigo-600",
-                              "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border bg-white text-[0.625rem] font-medium"
-                            )}
-                          >
-                            {team.initial}
-                          </span>
-                          <span className="truncate">{team.name}</span>
-                        </a>
+                          <span className="truncate">{channel?.name}</span>
+                        </Link>
                       </li>
                     ))}
                   </ul>

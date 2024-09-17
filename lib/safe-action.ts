@@ -1,10 +1,10 @@
 import { createSafeActionClient } from "next-safe-action";
-import { currentVisitor } from "./auth";
+import { currentUser } from "./auth";
 
 export class ActionError extends Error {}
 
 export const actionClient = createSafeActionClient({
-  handleReturnedServerError: (err) => {
+  handleServerError: (err) => {
     if (err instanceof ActionError) {
       return err.message;
     }
@@ -15,7 +15,7 @@ export const actionClient = createSafeActionClient({
 export const authenticatedAction = actionClient
   // Define authorization middleware.
   .use(async ({ next }) => {
-    const user = await currentVisitor();
+    const user = await currentUser();
 
     if (!user) {
       throw new ActionError("User not found!");
@@ -30,12 +30,3 @@ export const authenticatedAction = actionClient
     // Return the next middleware with `userId` value in the context
     return next({ ctx: { user, userId } });
   });
-
-export const isProAction = authenticatedAction.use(
-  async ({ next, ctx: { user } }) => {
-    if (user.role !== "PRO") {
-      throw new ActionError("User is not a professional!");
-    }
-    return next({ ctx: { user } });
-  }
-);

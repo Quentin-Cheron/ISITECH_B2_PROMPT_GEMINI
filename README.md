@@ -6,4 +6,4 @@ L'API Gemini est une API RESTful qui permet de gérer les données de la platefo
 
 ## Fonctionnement de l'affinage
 
-Les réglages permettent d'améliorer la performance du modèle.
+Les réglages permettent d'améliorer la performance du modèle en ajustant les modèles

@@ -24,6 +24,8 @@ model User {
   accounts              Account[]
   isTwoFactorEnabled    Boolean                @default(false)
   twoFactorConfirmation TwoFactorConfirmation?
+  Channel               Channel[]
+  Message               Message[]
 }
 
 model Account {
@@ -79,4 +81,26 @@ model TwoFactorConfirmation {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId])
+}
+
+model Channel {
+  id        String    @id @default(cuid())
+  name      String
+  messages  Message[]
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, name])
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  channelId   String
+  channel     Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sendMessage String
+  getMessage  String
+  createdAt   DateTime @default(now())
 }

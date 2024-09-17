@@ -10,7 +10,7 @@ export default function HeaderLayout() {
 
   const navigation = [
     { name: "Home", href: "/" },
-    { name: "Chat", href: "/chat" },
+    { name: "Chat", href: "/c" },
     { name: "About us", href: "/about" },
     { name: "Contact", href: "/contact" },
     { name: "Profile", href: "/settings" },

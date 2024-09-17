@@ -5,7 +5,8 @@ export type IconSvgProps = SVGProps<SVGSVGElement> & {
 };
 
 export type Message = {
-  sendMessage: string;
+  sendMessage?: string;
+  message?: string;
   getMessage?: string;
   createdAt: Date;
 };

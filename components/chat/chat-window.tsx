@@ -8,7 +8,7 @@ export default function ChatWindow({ data }: { data: Message[] }) {
   return (
     <div className="bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {data.length === 0 ? (
+        {data?.length === 0 ? (
           <div className="mx-auto max-w-2xl lg:max-w-none">
             <div className="text-center">
               <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
@@ -22,12 +22,12 @@ export default function ChatWindow({ data }: { data: Message[] }) {
           </div>
         ) : (
           <div className="space-y-4">
-            {data.map((message, index) => (
+            {data?.map((message, index) => (
               <div key={index} className="space-y-2">
                 {/* Message envoyé */}
                 <div className="flex justify-end">
                   <div className="bg-blue-500 text-white rounded-lg px-4 py-2 max-w-sm break-words">
-                    <p>{message.sendMessage}</p>
+                    <p>{message.sendMessage || message.message}</p>
                     <span className="block text-sm text-gray-300 mt-1">
                       {new Date(message.createdAt).toLocaleTimeString()}
                     </span>
