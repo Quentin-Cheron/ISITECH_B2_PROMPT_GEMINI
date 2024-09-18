@@ -122,20 +122,6 @@ function classNames(...classes: string[]) {
 }
 
 export default function Home() {
-  useEffect(() => {
-    async function fetchModels() {
-      try {
-        const response = await fetch("/api/tuned");
-        const data = await response.json();
-        console.log(data);
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    fetchModels();
-  }, []);
-
   return (
     <div className="bg-white">
       {/* Header */}

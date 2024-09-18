@@ -32,9 +32,15 @@ export const addMessage = authenticatedAction
     const access_token = process.env.GOOGLE_ACCESS_TOKEN;
     const project_id = process.env.GOOGLE_PROJECT_ID;
 
+    const options = [
+      "Ecris sans caractère spécial",
+      "fais de courts phrases",
+      "va directement dans le sujet",
+    ];
+
     try {
       const res = await fetch(
-        `${base_url}/v1beta/tunedModels/number-generator-model-dzlmi0gswwqb`,
+        `${base_url}/v1beta/models/gemini-1.0-pro:generateContent`,
         {
           method: "POST",
           headers: {
@@ -43,114 +49,39 @@ export const addMessage = authenticatedAction
             "x-goog-user-project": project_id,
           },
           body: JSON.stringify({
-            display_name: "number generator model",
-            base_model: "models/gemini-1.5-flash",
-            tuning_task: {
-              hyperparameters: {
-                batch_size: 2,
-                learning_rate: 0.001,
-                epoch_count: 5,
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `${message}, ${options.map((e) => e).join(", ")}`,
+                  },
+                ],
               },
-              training_data: {
-                examples: {
-                  examples: [
-                    {
-                      text_input: "1",
-                      output: "2",
-                    },
-                    {
-                      text_input: "3",
-                      output: "4",
-                    },
-                    {
-                      text_input: "-3",
-                      output: "-2",
-                    },
-                    {
-                      text_input: "twenty two",
-                      output: "twenty three",
-                    },
-                    {
-                      text_input: "two hundred",
-                      output: "two hundred one",
-                    },
-                    {
-                      text_input: "ninety nine",
-                      output: "one hundred",
-                    },
-                    {
-                      text_input: "8",
-                      output: "9",
-                    },
-                    {
-                      text_input: "-98",
-                      output: "-97",
-                    },
-                    {
-                      text_input: "1,000",
-                      output: "1,001",
-                    },
-                    {
-                      text_input: "10,100,000",
-                      output: "10,100,001",
-                    },
-                    {
-                      text_input: "thirteen",
-                      output: "fourteen",
-                    },
-                    {
-                      text_input: "eighty",
-                      output: "eighty one",
-                    },
-                    {
-                      text_input: "one",
-                      output: "two",
-                    },
-                    {
-                      text_input: "three",
-                      output: "four",
-                    },
-                    {
-                      text_input: "seven",
-                      output: "eight",
-                    },
-                  ],
-                },
-              },
-            },
+            ],
           }),
         }
       );
 
-      // if (!res.ok) {
-      //   throw new ActionError(`HTTP error! status: ${res.status}`);
-      // }
+      if (!res.ok) {
+        throw new ActionError(`HTTP error! status: ${res.status}`);
+      }
 
-      console.log(res.status);
-
-      const data = await res.text();
-      return { message: data };
+      const data = await res.json();
+      const msg = data.candidates[0].content.parts[0].text;
+      await db.message.create({
+        data: {
+          sendMessage: message,
+          getMessage: msg,
+          channelId,
+          userId,
+        },
+      });
+      return {
+        message: msg,
+      };
     } catch (error) {
       console.error("Error:", error);
     }
-
-    // const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY as string);
-
-    // const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-    // const result = await model.generateContent(message);
-
-    // // Ajoute le message
-    // await db.message
-    //   .create({
-    //     data: {
-    //       sendMessage: message,
-    //       getMessage: result.response.text(),
-    //       channelId,
-    //       userId,
-    //     },
-    //   })
-    //   .catch((err) => console.log("prisma error; ", err));
   });
 
 export const getMessageFromChannel = authenticatedAction
@@ -175,7 +106,7 @@ export const getMessageFromChannel = authenticatedAction
         channelId: existingChannel.id,
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: "asc",
       },
     });
 

@@ -21,12 +21,12 @@ export default function ChatWindow({ data }: { data: Message[] }) {
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-8">
             {data?.map((message, index) => (
-              <div key={index} className="space-y-2">
+              <div key={index} className="space-y-4">
                 {/* Message envoyé */}
-                <div className="flex justify-end">
-                  <div className="bg-blue-500 text-white rounded-lg px-4 py-2 max-w-sm break-words">
+                <div className="w-full flex justify-start">
+                  <div className="bg-blue-500 text-white rounded-lg px-4 py-2 w-full break-words">
                     <p>{message.sendMessage || message.message}</p>
                     <span className="block text-sm text-gray-300 mt-1">
                       {new Date(message.createdAt).toLocaleTimeString()}
@@ -35,8 +35,8 @@ export default function ChatWindow({ data }: { data: Message[] }) {
                 </div>
 
                 {/* Réponse de Gemini */}
-                <div className="flex justify-start">
-                  <div className="bg-gray-200 text-gray-900 rounded-lg px-4 py-2 max-w-sm break-words">
+                <div className="w-full flex justify-start">
+                  <div className="bg-gray-200 text-gray-900 rounded-lg px-4 py-2 w-full break-words">
                     <p>{message.getMessage}</p>
                     <span className="block text-sm text-gray-500 mt-1">
                       {new Date(message.createdAt).toLocaleTimeString()}

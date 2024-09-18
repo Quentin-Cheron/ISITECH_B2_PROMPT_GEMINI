@@ -6,24 +6,22 @@ import { ActionError, authenticatedAction } from "@/lib/safe-action";
 export const addChannelAction = authenticatedAction.action(
   async ({ ctx: { user } }) => {
     const userId = user.id;
-    const allChannels = await db.channel.findMany({
+    const allChannel = await db.channel.findMany({
       where: {
         userId: user.id,
       },
     });
 
-    console.log("id", user);
-
-    await db.channel
+    const newChannel = await db.channel
       .create({
         data: {
-          name: `channel ${allChannels.length + 1}`,
+          name: `channel ${allChannel.length + 1}`,
           user: { connect: { id: userId } },
         },
       })
       .catch((err) => console.log("prisma error; ", err));
 
-    return { channels: allChannels };
+    return { channels: newChannel };
   }
 );
 

@@ -56,7 +56,7 @@ export default function Content({ children }: childrenProps) {
       console.log(res);
 
       if (res.data) {
-        setChannels((prev: any[] = []) => [...(prev || []), res.data.channel]);
+        setChannels((prev: any[] = []) => [...(prev || []), res.data.channels]);
       }
 
       if (res.serverError) {
