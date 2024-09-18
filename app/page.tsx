@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import HeaderLayout from "@/components/layout/header-layout";
+import { useEffect } from "react";
 
 const features = [
   {
@@ -121,6 +122,20 @@ function classNames(...classes: string[]) {
 }
 
 export default function Home() {
+  useEffect(() => {
+    async function fetchModels() {
+      try {
+        const response = await fetch("/api/tuned");
+        const data = await response.json();
+        console.log(data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    fetchModels();
+  }, []);
+
   return (
     <div className="bg-white">
       {/* Header */}

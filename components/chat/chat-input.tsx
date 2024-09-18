@@ -53,6 +53,8 @@ export default function ChatInput({
           channelId: id === undefined ? "" : id,
         });
 
+        console.log(res);
+
         if (res?.data?.message) {
           setError("");
           notifySuccess("Message envoyé");

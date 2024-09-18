@@ -28,25 +28,129 @@ export const addMessage = authenticatedAction
       });
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY as string);
+    const base_url = "https://generativelanguage.googleapis.com";
+    const access_token = process.env.GOOGLE_ACCESS_TOKEN;
+    const project_id = process.env.GOOGLE_PROJECT_ID;
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    try {
+      const res = await fetch(
+        `${base_url}/v1beta/tunedModels/number-generator-model-dzlmi0gswwqb`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${access_token}`,
+            "x-goog-user-project": project_id,
+          },
+          body: JSON.stringify({
+            display_name: "number generator model",
+            base_model: "models/gemini-1.5-flash",
+            tuning_task: {
+              hyperparameters: {
+                batch_size: 2,
+                learning_rate: 0.001,
+                epoch_count: 5,
+              },
+              training_data: {
+                examples: {
+                  examples: [
+                    {
+                      text_input: "1",
+                      output: "2",
+                    },
+                    {
+                      text_input: "3",
+                      output: "4",
+                    },
+                    {
+                      text_input: "-3",
+                      output: "-2",
+                    },
+                    {
+                      text_input: "twenty two",
+                      output: "twenty three",
+                    },
+                    {
+                      text_input: "two hundred",
+                      output: "two hundred one",
+                    },
+                    {
+                      text_input: "ninety nine",
+                      output: "one hundred",
+                    },
+                    {
+                      text_input: "8",
+                      output: "9",
+                    },
+                    {
+                      text_input: "-98",
+                      output: "-97",
+                    },
+                    {
+                      text_input: "1,000",
+                      output: "1,001",
+                    },
+                    {
+                      text_input: "10,100,000",
+                      output: "10,100,001",
+                    },
+                    {
+                      text_input: "thirteen",
+                      output: "fourteen",
+                    },
+                    {
+                      text_input: "eighty",
+                      output: "eighty one",
+                    },
+                    {
+                      text_input: "one",
+                      output: "two",
+                    },
+                    {
+                      text_input: "three",
+                      output: "four",
+                    },
+                    {
+                      text_input: "seven",
+                      output: "eight",
+                    },
+                  ],
+                },
+              },
+            },
+          }),
+        }
+      );
 
-    const result = await model.generateContent(message);
+      // if (!res.ok) {
+      //   throw new ActionError(`HTTP error! status: ${res.status}`);
+      // }
 
-    // Ajoute le message
-    await db.message
-      .create({
-        data: {
-          sendMessage: message,
-          getMessage: result.response.text(),
-          channelId,
-          userId,
-        },
-      })
-      .catch((err) => console.log("prisma error; ", err));
+      console.log(res.status);
 
-    return { message: result.response.text() };
+      const data = await res.text();
+      return { message: data };
+    } catch (error) {
+      console.error("Error:", error);
+    }
+
+    // const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY as string);
+
+    // const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    // const result = await model.generateContent(message);
+
+    // // Ajoute le message
+    // await db.message
+    //   .create({
+    //     data: {
+    //       sendMessage: message,
+    //       getMessage: result.response.text(),
+    //       channelId,
+    //       userId,
+    //     },
+    //   })
+    //   .catch((err) => console.log("prisma error; ", err));
   });
 
 export const getMessageFromChannel = authenticatedAction
