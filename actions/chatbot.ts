@@ -1,17 +1,69 @@
 "use server";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { ActionError, authenticatedAction } from "@/lib/safe-action";
 import { channelIdSchema, chatSchema } from "@/schemas/chat";
 import { db } from "@/lib/db";
+import { training } from "@/lib/training";
 
 export const addMessage = authenticatedAction
   .schema(chatSchema)
   .action(async ({ parsedInput, ctx: { userId } }) => {
-    const { message, channelId } = parsedInput;
+    const { message, channelId, output } = parsedInput;
+
+    if (channelId === "training") {
+      const res = await training({
+        text_input: message,
+        output,
+      });
+
+      return null;
+    }
+
+    const response = await fetch("https://api.ipify.org?format=json");
+    const data = await response.json();
+    const ipPublique = data.ip;
+
+    // Vérifie si l'utilisateur a déjà fait une requête ce mois-ci
+    const currentDate = new Date();
+    const startOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    );
+
+    let userRequest = await db.userRequest.findFirst({
+      where: {
+        ip: ipPublique,
+        month: { gte: startOfMonth },
+      },
+    });
+
+    if (userRequest) {
+      // Vérifie si l'utilisateur a dépassé les 100 requêtes
+      if (userRequest.requests >= 10) {
+        throw new ActionError(
+          "Limite de 10 requêtes par mois atteinte pour cette IP."
+        );
+      }
+
+      // Incrémente le compteur de requêtes
+      await db.userRequest.update({
+        where: { id: userRequest.id },
+        data: { requests: { increment: 1 } },
+      });
+    } else {
+      // Crée une nouvelle entrée pour cet utilisateur et ce mois
+      await db.userRequest.create({
+        data: {
+          ip: ipPublique,
+          requests: 1,
+          month: startOfMonth,
+        },
+      });
+    }
 
     if (!message) {
-      throw new ActionError("Le message et l'ID du canal sont requis");
+      throw new ActionError("Le message est requis");
     }
 
     // Vérifie si le canal existe
@@ -34,13 +86,13 @@ export const addMessage = authenticatedAction
 
     const options = [
       "Ecris sans caractère spécial",
-      "fais de courts phrases",
-      "va directement dans le sujet",
+      "détail un peu ce que tu dis",
+      "si tu dois dire une liste de choses, fait une liste avec des points et le contenu à coté puis met un retour à la ligne, sans caractère spécial, court et concis",
     ];
 
     try {
       const res = await fetch(
-        `${base_url}/v1beta/models/gemini-1.0-pro:generateContent`,
+        `${base_url}/v1beta/tunedModels/${process.env.MODEL_ID}:generateContent`,
         {
           method: "POST",
           headers: {

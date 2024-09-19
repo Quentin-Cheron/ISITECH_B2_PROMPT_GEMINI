@@ -3,7 +3,7 @@
 /* eslint-disable import/order */
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 // FORM
 import * as z from "zod";
@@ -22,6 +22,7 @@ import { chatSchema } from "@/schemas/chat";
 import { notifySuccess } from "@/lib/notify";
 import { allMessages } from "@/types";
 import { getOneLastChannel } from "@/actions/channel";
+import { FormError } from "../form-messages";
 
 // ChatInput component
 
@@ -36,28 +37,30 @@ export default function ChatInput({
   const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
+  const pathname = usePathname();
 
   const form = useForm<z.infer<typeof chatSchema>>({
     resolver: zodResolver(chatSchema),
     defaultValues: {
       message: "",
       channelId: id === undefined ? "" : id,
+      output: "",
     },
   });
 
-  const onSubmit = (data: { message: string }) => {
+  const onSubmit = (data: { message: string; output: string }) => {
     startTransition(async () => {
       try {
         const res = await addMessage({
           message: data.message,
           channelId: id === undefined ? "" : id,
+          output: data.output,
         });
-
-        console.log(res);
 
         if (res?.data?.message) {
           setError("");
           notifySuccess("Message envoyé");
+          form.reset();
           setData((prev: allMessages) => [
             ...prev,
             {
@@ -97,14 +100,22 @@ export default function ChatInput({
   return (
     <>
       <form
-        className="flex gap-5 relative top-0 mb-5"
+        className="flex gap-5 relative top-0 !mb-4"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <Input
           type="text"
           {...form.register("message")}
-          placeholder="Message Gemini..."
+          placeholder="Poser une question à Gemini..."
         />
+
+        {pathname === "/c/training" && (
+          <Input
+            type="text"
+            {...form.register("output")}
+            placeholder="Réponse de Gemini..."
+          />
+        )}
 
         {id ? (
           <Button color="primary" type="submit" isLoading={isPending}>
@@ -121,7 +132,9 @@ export default function ChatInput({
           </Button>
         )}
       </form>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      <div className="mb-4">
+        <FormError message={error} />
+      </div>
     </>
   );
 }

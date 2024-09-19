@@ -122,6 +122,12 @@ function classNames(...classes: string[]) {
 }
 
 export default function Home() {
+  useEffect(() => {
+    fetch("/api/request")
+      .then((res) => res.json())
+      .then((res) => console.log("res", res))
+      .catch((err) => console.error(err));
+  }, []);
   return (
     <div className="bg-white">
       {/* Header */}

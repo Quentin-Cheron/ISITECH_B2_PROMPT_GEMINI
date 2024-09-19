@@ -232,6 +232,7 @@ export default function Content({ children }: childrenProps) {
                   <div className="text-xs font-semibold leading-6 text-gray-400">
                     Toute les conversations
                   </div>
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -242,6 +243,12 @@ export default function Content({ children }: childrenProps) {
                     {!isPending && <PlusCircleIcon className="mr-2 h-5 w-5" />}
                     Ajouter une conversation
                   </Button>
+                  <Link
+                    href={`/c/training`}
+                    className="-mx-2 mt-2 group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 hover:bg-gray-50 hover:text-indigo-600"
+                  >
+                    <span className="truncate">Training</span>
+                  </Link>
                   <ul className="-mx-2 mt-2 space-y-1">
                     {channels?.map((channel) => (
                       <li key={channel?.id}>
@@ -280,7 +287,9 @@ export default function Content({ children }: childrenProps) {
                           <p className="font-bold">Signed in as</p>
                           <p className="font-bold">@{user.name}</p>
                         </DropdownItem>
-                        <DropdownItem key="settings">My Settings</DropdownItem>
+                        <DropdownItem key="settings">
+                          <Link href="/settings">Settings</Link>
+                        </DropdownItem>
                         <DropdownItem key="help_and_feedback">
                           Help & Feedback
                         </DropdownItem>

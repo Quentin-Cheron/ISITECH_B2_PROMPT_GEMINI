@@ -28,6 +28,13 @@ model User {
   Message               Message[]
 }
 
+model UserRequest {
+  id       Int      @id @default(autoincrement())
+  ip       String
+  requests Int      @default(0)
+  month    DateTime
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -45,6 +52,13 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+}
+
+model Model {
+  id           String   @id @default(cuid())
+  modelName    String
+  trainingData Json
+  createdAt    DateTime @default(now())
 }
 
 model VerificationToken {
